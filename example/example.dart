@@ -7,7 +7,7 @@ Future main() async {
   await robots.read();
   // Print the ruleset
   for (final ruleset in robots.rulesets) {
-    // Print the user-agent the ruleset applies to 
+    // Print the user-agent the ruleset applies to
     print(ruleset.appliesTo);
     if (ruleset.allows.isNotEmpty) {
       print('Allows:');

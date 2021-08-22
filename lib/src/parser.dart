@@ -3,7 +3,6 @@ import 'package:web_scraper/web_scraper.dart';
 
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
-import 'package:robots_txt/src/utils.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
 /// fields; 'title' and 'attributes'. 'attributes' is a map containing the
@@ -95,19 +94,17 @@ class Robots {
   /// regular expression for later matching
   RegExp convertFieldPathToExpression(String pathDeclaration) {
     // Collapse duplicate slashes and wildcards into singles
-    final collapsed = pathDeclaration
-      .replaceAll('/+', '/')
-      .replaceAll('*+', '*');
+    final collapsed =
+        pathDeclaration.replaceAll('/+', '/').replaceAll('*+', '*');
     final normalised = collapsed.endsWith('*')
         ? collapsed.substring(0, collapsed.length - 1)
         : collapsed;
-    final withWildcardsReplaced = normalised
-      .replaceAll('.', r'\.')
-      .replaceAll('*', '.*');
+    final withWildcardsReplaced =
+        normalised.replaceAll('.', r'\.').replaceAll('*', '.*');
     final withTrailingText = withWildcardsReplaced.contains(r'$')
         ? withWildcardsReplaced.split(r'$')[0]
         : '$withWildcardsReplaced.*';
-    return RegExp(withTrailingText, caseSensitive: false,  dotAll: true);
+    return RegExp(withTrailingText, caseSensitive: false, dotAll: true);
   }
 
   /// Extracts the key and value from [target] and puts it into a `MapEntry`
