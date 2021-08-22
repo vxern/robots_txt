@@ -1,0 +1,20 @@
+publish_to: https://pub.dev
+
+name: robots_txt
+version: 1.0.0
+
+description: Lightweight, sturdy and fully-documented parser of the `robots.txt` file.
+
+homepage: https://github.com/wordcollector/robots_txt
+repository: https://github.com/wordcollector/robots_txt
+issue_tracker: https://github.com/wordcollector/robots_txt/issues
+
+environment:
+  sdk: '>=2.13.0 <3.0.0'
+
+dependencies:
+  sprint: ^1.0.2+2
+  web_scraper: ^0.1.4
+
+dev_dependencies:
+  words: ^0.0.1+2
