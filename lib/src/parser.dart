@@ -6,8 +6,7 @@ import 'package:robots_txt/src/ruleset.dart';
 import 'package:robots_txt/src/utils.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
-// ignore: comment_references
-/// fields; [title] and [attributes]. [attributes] is a map containing the
+/// fields; 'title' and 'attributes'. 'attributes' is a map containing the
 /// attributes of the element
 typedef Element = Map<String, Map<String, dynamic>>;
 
@@ -37,40 +36,28 @@ class Robots {
             quietMode: quietMode, productionMode: productionMode);
 
   /// Reads and parses the `robots.txt` file of the host
-  Future read() async {
+  Future read({String? onlyRelevantTo}) async {
     await scraper.loadWebPage('/robots.txt');
-    final preformatted = scraper.getElement('pre', []);
-    log.debug(preformatted);
+    final body = scraper.getElement('body', [])[0];
 
     final invalidRobotsFileError = "'$host' has an invalid `robots.txt`:";
 
-    if (preformatted.isEmpty) {
+    if (body.isEmpty) {
       log.warn('$invalidRobotsFileError No text elements found');
       return rulesets;
     }
 
-    final attributes = preformatted[0]['attributes'] as Map<String, String>;
-    log.debug(attributes);
-
-    if (!attributes.containsKey('innerText') ||
-        attributes['innerText']!.isEmpty) {
-      log.warn('$invalidRobotsFileError '
-          'The preformatted element does not contain text');
-      return rulesets;
-    }
-
-    final lines = attributes['innerText']!.split('\n');
-    return parseRuleset(lines);
+    final content = body['title'] as String;
+    final lines = content.split('\n').where((line) => line.isNotEmpty);
+    parseRulesets(lines, onlyRelevantTo: onlyRelevantTo);
   }
 
   /// Iterates over [lines] and parses each ruleset, additionally ignoring
   /// those rulesets which are not relevant to [onlyRelevantTo]
-  List<Ruleset> parseRuleset(List<String> lines, {String? onlyRelevantTo}) {
-    final rulesets = <Ruleset>[];
-
+  void parseRulesets(Iterable<String> lines, {String? onlyRelevantTo}) {
     Ruleset? ruleset;
     for (var index = 0; index < lines.length; index++) {
-      final field = getRobotsFieldFromLine(lines[index]);
+      final field = getRobotsFieldFromLine(lines.elementAt(index));
 
       switch (field.key) {
         case 'user-agent':
@@ -99,9 +86,9 @@ class Robots {
       }
     }
 
-    log.debug(
-        'Read robots.txt of $host: ${pluralise('ruleset', rulesets.length)}');
-    return rulesets;
+    if (ruleset != null) {
+      rulesets.add(ruleset);
+    }
   }
 
   /// Reads a path declaration from within `robots.txt` and converts it to a
@@ -109,18 +96,18 @@ class Robots {
   RegExp convertFieldPathToExpression(String pathDeclaration) {
     // Collapse duplicate slashes and wildcards into singles
     final collapsed = pathDeclaration
-      ..replaceAll('/+', '/')
-      ..replaceAll('*+', '*');
+      .replaceAll('/+', '/')
+      .replaceAll('*+', '*');
     final normalised = collapsed.endsWith('*')
         ? collapsed.substring(0, collapsed.length - 1)
         : collapsed;
-    final withRegexWildcards = normalised
-      ..replaceAll('.', r'\.')
-      ..replaceAll('*', '.+');
-    final withTrailingText = withRegexWildcards.contains(r'$')
-        ? withRegexWildcards.split(r'$')[0]
-        : '$withRegexWildcards.+';
-    return RegExp(withTrailingText);
+    final withWildcardsReplaced = normalised
+      .replaceAll('.', r'\.')
+      .replaceAll('*', '.*');
+    final withTrailingText = withWildcardsReplaced.contains(r'$')
+        ? withWildcardsReplaced.split(r'$')[0]
+        : '$withWildcardsReplaced.*';
+    return RegExp(withTrailingText, caseSensitive: false,  dotAll: true);
   }
 
   /// Extracts the key and value from [target] and puts it into a `MapEntry`
