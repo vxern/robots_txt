@@ -1,6 +1,6 @@
-## 1.0.0
+## 1.1.0+1
 
-  - Initial release
+  - Formatted files in accordance with `dartfmt`
 
 ## 1.1.0
 
@@ -8,6 +8,6 @@
   - Fixed the parsing of rule fields to `Rule`s
   - Added `example.dart`
 
-## 1.1.0+1
+## 1.0.0
 
-  - Formatted files in accordance with `dartfmt`
+  - Initial release
