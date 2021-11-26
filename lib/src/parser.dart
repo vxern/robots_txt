@@ -1,8 +1,7 @@
-import 'package:sprint/sprint.dart';
-import 'package:web_scraper/web_scraper.dart';
-
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
+import 'package:sprint/sprint.dart';
+import 'package:web_scraper/web_scraper.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
 /// fields; 'title' and 'attributes'. 'attributes' is a map containing the
