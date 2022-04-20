@@ -1,29 +1,29 @@
 import 'package:robots_txt/src/rule.dart';
 
 /// A collection of `Rule`s, and the `user-agent` they are relevant to inside
-/// the `robots.txt` file
+/// the `robots.txt` file.
 class Ruleset {
-  /// The `user-agent` which this ruleset applies to
+  /// The `user-agent` which this ruleset applies to.
   final String appliesTo;
 
-  /// List of `Rule`s which explicitly state that a path may be traversed
+  /// List of `Rule`s which explicitly state that a path may be traversed.
   final List<Rule> allows = [];
 
-  /// List of `Rule`s which explicitly state that a path may not be traversed
+  /// List of `Rule`s which explicitly state that a path may not be traversed.
   final List<Rule> disallows = [];
 
-  /// Instantiates a ruleset with the `user-agent`
+  /// Instantiates a ruleset with the `user-agent`.
   Ruleset(this.appliesTo);
 
-  /// Checks whether this ruleset applies to [userAgent]
+  /// Checks whether this ruleset applies to [userAgent].
   bool doesConcern(String userAgent) =>
       appliesTo == '*' || appliesTo == userAgent;
 }
 
 /// Extends `List<Ruleset>` with a method for getting a single `Rule` from the
-/// list of `Ruleset`s
+/// list of `Rulesets`
 extension RulingOfRulesets on List<Ruleset> {
-  /// Gets the rule which [appliesTo], [concernsPath] [andAllowsIt]
+  /// Gets the rule which [appliesTo], [concernsPath] [andAllowsIt].
   Rule? getRule({
     required String appliesTo,
     required String concernsPath,

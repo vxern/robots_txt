@@ -4,27 +4,27 @@ import 'package:sprint/sprint.dart';
 import 'package:web_scraper/web_scraper.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
-/// fields; 'title' and 'attributes'. 'attributes' is a map containing the
-/// attributes of the element
+/// fields; 'title' and 'attributes'.  'attributes' is a map containing the
+/// attributes of the element.
 typedef Element = Map<String, Map<String, dynamic>>;
 
 /// Allows for parsing of a host's `robots.txt` to get information about which
 /// of its resources may or may not be accessed, as well as which of its pages
-/// cannot be traversed
+/// cannot be traversed.
 class Robots {
-  /// Instance of `Sprint` message printer for the `robots.txt` parser
+  /// Instance of `Sprint` message logger for the `robots.txt` parser.
   final Sprint log;
 
-  /// The host of this `robots.txt` file
+  /// The host of this `robots.txt` file.
   final String host;
 
-  /// Stores an instance of the scraper for a given URL
+  /// Stores an instance of the scraper for a given URL.
   final WebScraper scraper;
 
-  /// Stores expressions for both paths which may or may not be traversed
+  /// Stores expressions for both paths which may or may not be traversed.
   final List<Ruleset> rulesets = [];
 
-  /// Creates an instance of a `robots.txt` parser for the [host]
+  /// Creates an instance of a `robots.txt` parser for the provided [host].
   Robots({
     required this.host,
     bool quietMode = false,
@@ -33,7 +33,7 @@ class Robots {
         log = Sprint('Robots',
             quietMode: quietMode, productionMode: productionMode);
 
-  /// Reads and parses the `robots.txt` file of the host
+  /// Reads and parses the `robots.txt` file of the [host].
   Future read({String? onlyRelevantTo}) async {
     await scraper.loadWebPage('/robots.txt');
     final body = scraper.getElement('body', [])[0];
@@ -51,7 +51,7 @@ class Robots {
   }
 
   /// Iterates over [lines] and parses each ruleset, additionally ignoring
-  /// those rulesets which are not relevant to [onlyRelevantTo]
+  /// those rulesets which are not relevant to [onlyRelevantTo].
   void parseRulesets(Iterable<String> lines, {String? onlyRelevantTo}) {
     Ruleset? ruleset;
     for (var index = 0; index < lines.length; index++) {
@@ -90,9 +90,9 @@ class Robots {
   }
 
   /// Reads a path declaration from within `robots.txt` and converts it to a
-  /// regular expression for later matching
+  /// regular expression for later matching.
   RegExp convertFieldPathToExpression(String pathDeclaration) {
-    // Collapse duplicate slashes and wildcards into singles
+    // Collapse duplicate slashes and wildcards into singles.
     final collapsed =
         pathDeclaration.replaceAll('/+', '/').replaceAll('*+', '*');
     final normalised = collapsed.endsWith('*')
@@ -106,7 +106,7 @@ class Robots {
     return RegExp(withTrailingText, caseSensitive: false, dotAll: true);
   }
 
-  /// Extracts the key and value from [target] and puts it into a `MapEntry`
+  /// Extracts the key and value from [target] and puts it into a `MapEntry`.
   MapEntry<String, String> getRobotsFieldFromLine(String target) {
     final keyValuePair = target.split(':');
     final key = keyValuePair[0].toLowerCase();
@@ -114,7 +114,7 @@ class Robots {
     return MapEntry(key, value);
   }
 
-  /// Determines whether or not [path] may be traversed
+  /// Determines whether or not [path] may be traversed.
   bool canVisitPath(String path, {required String userAgent}) {
     final explicitAllowance = rulesets.getRule(
         appliesTo: userAgent, concernsPath: path, andAllowsIt: true);

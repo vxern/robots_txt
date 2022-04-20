@@ -1,3 +1,8 @@
+## 1.1.0+3
+
+- Improved documentation.
+- Bumped year in the license.
+
 ## 1.1.0+2
 
 - Updated package description.
