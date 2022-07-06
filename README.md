@@ -1,4 +1,4 @@
-## A simple yet complete, lightweight and sturdy `robots.txt` ruleset parser to ensure your application follows the standard protocol.
+## A lightweight `robots.txt` ruleset parser to ensure your application follows the standard protocol.
 
 ### Usage
 

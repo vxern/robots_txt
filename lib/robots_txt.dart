@@ -1,5 +1,4 @@
-/// Lightweight, sturdy and fully documented library for parsing the
-/// `robots.txt` file.  Nothing more, nothing less.
+/// Lightweight, fully documented `robots.txt` file parser.
 library robots_txt;
 
 export 'src/parser.dart';

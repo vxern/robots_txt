@@ -30,11 +30,14 @@ class Robots {
     bool quietMode = false,
     bool productionMode = true,
   })  : scraper = WebScraper(host),
-        log = Sprint('Robots',
-            quietMode: quietMode, productionMode: productionMode);
+        log = Sprint(
+          'Robots',
+          quietMode: quietMode,
+          productionMode: productionMode,
+        );
 
   /// Reads and parses the `robots.txt` file of the [host].
-  Future read({String? onlyRelevantTo}) async {
+  Future<void> read({String? onlyRelevantTo}) async {
     await scraper.loadWebPage('/robots.txt');
     final body = scraper.getElement('body', [])[0];
 
@@ -42,7 +45,7 @@ class Robots {
 
     if (body.isEmpty) {
       log.warn('$invalidRobotsFileError No text elements found');
-      return rulesets;
+      return;
     }
 
     final content = body['title'] as String;
@@ -117,9 +120,15 @@ class Robots {
   /// Determines whether or not [path] may be traversed.
   bool canVisitPath(String path, {required String userAgent}) {
     final explicitAllowance = rulesets.getRule(
-        appliesTo: userAgent, concernsPath: path, andAllowsIt: true);
+      appliesTo: userAgent,
+      concernsPath: path,
+      andAllowsIt: true,
+    );
     final explicitDisallowance = rulesets.getRule(
-        appliesTo: userAgent, concernsPath: path, andAllowsIt: false);
+      appliesTo: userAgent,
+      concernsPath: path,
+      andAllowsIt: false,
+    );
 
     final allowancePriority = explicitAllowance?.priority ?? -1;
     final disallowancePriority = explicitDisallowance?.priority ?? -1;

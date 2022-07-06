@@ -1,3 +1,8 @@
+## 1.1.1
+
+- Updated project description.
+- Adapted code to lint rules.
+
 ## 1.1.0+3
 
 - Improved documentation.
