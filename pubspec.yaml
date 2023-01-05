@@ -1,5 +1,5 @@
 name: robots_txt
-version: 1.1.1
+version: 2.0.0
 
 description: >-
   A lightweight `robots.txt` ruleset parser to ensure your application adheres
@@ -10,11 +10,8 @@ repository: https://github.com/wordcollector/robots_txt
 issue_tracker: https://github.com/wordcollector/robots_txt/issues
 
 environment:
-  sdk: '>=2.13.0 <3.0.0'
-
-dependencies:
-  sprint: ^1.0.4
-  web_scraper: ^0.1.4
+  sdk: '>=2.17.0 <3.0.0'
 
 dev_dependencies:
-  words: ^0.1.1
+  web_scraper: ^0.1.4
+  words: ^0.2.0
