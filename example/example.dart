@@ -1,10 +1,13 @@
 import 'package:robots_txt/robots_txt.dart';
+import 'package:web_scraper/web_scraper.dart';
 
-Future main() async {
+Future<void> main() async {
+  // Get contents of the `robots.txt` file.
+  final contents = await fetchFileContents(host: 'https://github.com');
   // Create an instance of the `robots.txt` parser.
-  final robots = Robots(host: 'https://github.com/');
+  final robots = Robots();
   // Read the ruleset of the website.
-  await robots.read();
+  await robots.read(contents);
   // Print the ruleset.
   for (final ruleset in robots.rulesets) {
     // Print the user-agent the ruleset applies to.
@@ -28,5 +31,12 @@ Future main() async {
   print(robots.canVisitPath('/gist/', userAgent: '*'));
   // True: it can.
   print(robots.canVisitPath('/wordcollector/robots_txt', userAgent: '*'));
-  return;
+}
+
+Future<String> fetchFileContents({required String host}) async {
+  final scraper = WebScraper(host);
+  await scraper.loadWebPage('/robots.txt');
+  final body = scraper.getElement('body', [])[0];
+  final contents = body['title'] as String;
+  return contents;
 }

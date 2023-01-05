@@ -3,6 +3,7 @@
 - Bumped the minimum SDK version to `2.17.0`.
 - Removed dependencies:
   - `sprint`
+  - `web_scraper`
 
 ## 1.1.1
 

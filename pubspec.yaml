@@ -12,8 +12,6 @@ issue_tracker: https://github.com/wordcollector/robots_txt/issues
 environment:
   sdk: '>=2.17.0 <3.0.0'
 
-dependencies:
-  web_scraper: ^0.1.4
-
 dev_dependencies:
+  web_scraper: ^0.1.4
   words: ^0.2.0

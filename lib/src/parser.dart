@@ -1,6 +1,5 @@
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
-import 'package:web_scraper/web_scraper.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
 /// fields; 'title' and 'attributes'.  'attributes' is a map containing the
@@ -11,29 +10,12 @@ typedef Element = Map<String, Map<String, dynamic>>;
 /// of its resources may or may not be accessed, as well as which of its pages
 /// cannot be traversed.
 class Robots {
-  /// The host of this `robots.txt` file.
-  final String host;
-
-  /// Stores an instance of the scraper for a given URL.
-  final WebScraper scraper;
-
   /// Stores expressions for both paths which may or may not be traversed.
   final List<Ruleset> rulesets = [];
 
-  /// Creates an instance of a `robots.txt` parser for the provided [host].
-  Robots({required this.host}) : scraper = WebScraper(host);
-
-  /// Reads and parses the `robots.txt` file of the [host].
-  Future<void> read({String? onlyRelevantTo}) async {
-    await scraper.loadWebPage('/robots.txt');
-    final body = scraper.getElement('body', [])[0];
-
-    if (body.isEmpty) {
-      throw Exception('The robots.txt contents of $host is invalid.');
-    }
-
-    final content = body['title'] as String;
-    final lines = content.split('\n').where((line) => line.isNotEmpty);
+  /// Reads and parses the contents of a `robots.txt` file.
+  Future<void> read(String contents, {String? onlyRelevantTo}) async {
+    final lines = contents.split('\n').where((line) => line.isNotEmpty);
     parseRulesets(lines, onlyRelevantTo: onlyRelevantTo);
   }
 
