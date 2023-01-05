@@ -1,3 +1,9 @@
+## 2.0.0 (Work in progress)
+
+- Bumped the minimum SDK version to `2.17.0`.
+- Removed dependencies:
+  - `sprint`
+
 ## 1.1.1
 
 - Updated project description.

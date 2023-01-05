@@ -1,6 +1,5 @@
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
-import 'package:sprint/sprint.dart';
 import 'package:web_scraper/web_scraper.dart';
 
 /// Abstracts away the rather convoluted declaration for an element with two
@@ -12,9 +11,6 @@ typedef Element = Map<String, Map<String, dynamic>>;
 /// of its resources may or may not be accessed, as well as which of its pages
 /// cannot be traversed.
 class Robots {
-  /// Instance of `Sprint` message logger for the `robots.txt` parser.
-  final Sprint log;
-
   /// The host of this `robots.txt` file.
   final String host;
 
@@ -25,27 +21,15 @@ class Robots {
   final List<Ruleset> rulesets = [];
 
   /// Creates an instance of a `robots.txt` parser for the provided [host].
-  Robots({
-    required this.host,
-    bool quietMode = false,
-    bool productionMode = true,
-  })  : scraper = WebScraper(host),
-        log = Sprint(
-          'Robots',
-          quietMode: quietMode,
-          productionMode: productionMode,
-        );
+  Robots({required this.host}) : scraper = WebScraper(host);
 
   /// Reads and parses the `robots.txt` file of the [host].
   Future<void> read({String? onlyRelevantTo}) async {
     await scraper.loadWebPage('/robots.txt');
     final body = scraper.getElement('body', [])[0];
 
-    final invalidRobotsFileError = "'$host' has an invalid `robots.txt`:";
-
     if (body.isEmpty) {
-      log.warn('$invalidRobotsFileError No text elements found');
-      return;
+      throw Exception('The robots.txt contents of $host is invalid.');
     }
 
     final content = body['title'] as String;
