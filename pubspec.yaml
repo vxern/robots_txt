@@ -14,4 +14,5 @@ dependencies:
   meta: ^1.8.0 # Used for static analysis.
 
 dev_dependencies:
+  test: ^1.22.1 # Testing.
   words: ^0.2.0 # Stricter lints.
