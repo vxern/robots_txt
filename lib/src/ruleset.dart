@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:robots_txt/src/parser.dart';
+import 'package:robots_txt/src/robots.dart';
 import 'package:robots_txt/src/rule.dart';
 
 /// A collection of `Rule`s, and the `user-agent` they are relevant to inside

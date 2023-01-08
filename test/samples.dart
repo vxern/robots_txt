@@ -6,6 +6,13 @@ const emptyContents = '';
 /// Invalid `robots.txt` contents.
 const invalidContents = 'This is an invalid robots.txt file.';
 
+/// Valid `robots.txt` file with all supported fields with example values and an
+/// extra field named 'Field'.
+final validContentsWithCustomFieldName = [
+  ...FieldType.values.map((value) => value.toField()),
+  'Field: unknown',
+].join('\n');
+
 /// Valid `robots.txt` file with an invalid disallow field.
 final validContentsInvalidPattern = '''
 ${FieldType.userAgent.toField('A')}

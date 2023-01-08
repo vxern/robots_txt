@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 
 import 'package:robots_txt/robots_txt.dart';
 
-import 'contents_definitions.dart';
+import '../samples.dart';
 
 void main() {
   late Robots robots;
@@ -49,7 +49,7 @@ void main() {
       });
     });
 
-    group('logical rules', () {
+    group('rules with logical applicability', () {
       test('defined without a user agent.', () {
         expect(
           () => robots = Robots.parse(rulesWithoutUserAgent),

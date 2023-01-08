@@ -3,7 +3,20 @@ import 'package:meta/meta.dart';
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
 
+/// Taking a set of [allowedFieldNames], builds a regular expression matching
+/// only to valid `robots.txt` files.
+@internal
+RegExp buildValidFilePattern({Set<String> allowedFieldNames = const {}}) {
+  final fieldNameExpression =
+      [FieldType.defaultFieldNameExpression, ...allowedFieldNames].join('|');
+
+  return RegExp(
+    '^(?:(?:(?:$fieldNameExpression):(?:.+))(?:\\s*(?:#.*)?)\n?){0,}\$',
+  );
+}
+
 /// Defines a Regex pattern that matches to comments.
+@internal
 final commentPattern = RegExp('#.*');
 
 /// Stores information about a `robots.txt` file, exposing a simple and concise
@@ -25,31 +38,67 @@ class Robots {
   const Robots._construct({required this.rulesets, required this.sitemaps});
 
   /// Parses the contents of a `robots.txt` file, creating an instance of
-  /// `Robots`. If [onlyApplicableTo] is specified, the parser will ignore any
-  /// rulesets that do not apply to it.
+  /// `Robots`.
   ///
-  /// This function will never throw an exception.
+  /// If [onlyApplicableTo] is specified, the parser will ignore user-agents
+  /// that are not included within it.
+  ///
+  /// This function will never throw an exception. If you wish to validate a
+  /// file
   factory Robots.parse(
     String contents, {
     Set<String>? onlyApplicableTo,
-  }) {
-    contents = contents.replaceAll(commentPattern, '');
+  }) =>
+      Robots._parse(contents, onlyApplicableTo: onlyApplicableTo);
 
-    if (contents.trim().isEmpty) {
-      return Robots._empty;
+  /// Taking the contents of `robots.txt` file, ensures that the file is valid,
+  /// and throws a `FormatException` if not.
+  ///
+  /// By default, this function will only accept the following fields:
+  /// - User-agent
+  /// - Allow
+  /// - Disallow
+  /// - Sitemap
+  ///
+  /// To accept custom fields, simply specify them in the [allowedFieldNames]
+  /// parameter.
+  static void validate(
+    String contents, {
+    Set<String> allowedFieldNames = const {},
+  }) {
+    final validFilePattern =
+        buildValidFilePattern(allowedFieldNames: allowedFieldNames);
+    if (!validFilePattern.hasMatch(contents)) {
+      throw const FormatException(
+        'The file is not a valid `robots.txt` file.',
+      );
     }
 
-    final lines = contents.split('\n').where((line) => line.isNotEmpty);
-
-    return Robots._fromLines(lines, onlyApplicableTo: onlyApplicableTo);
+    Robots._parse(contents, throwOnError: true);
   }
 
-  /// Iterates over [lines] and sequentially parses each ruleset, optionally
-  /// ignoring those rulesets which are not relevant to [onlyApplicableTo].
-  factory Robots._fromLines(
-    Iterable<String> lines, {
+  /// Splits [contents] into lines and iterates over them, sequentially parsing
+  /// each field, optionally ignoring those user-agents that are not found in
+  /// [onlyApplicableTo].
+  ///
+  /// If [throwOnError] is `true`, this function will re-throw errors caught
+  /// during parsing.
+  factory Robots._parse(
+    String contents, {
     Set<String>? onlyApplicableTo,
+    bool throwOnError = false,
   }) {
+    final List<String> lines;
+    {
+      contents = contents.replaceAll(commentPattern, '');
+
+      if (contents.trim().isEmpty) {
+        return Robots._empty;
+      }
+
+      lines = contents.split('\n').where((line) => line.isNotEmpty).toList();
+    }
+
     final rulesets = <Ruleset>[];
     final sitemaps = <String>[];
 
@@ -80,7 +129,7 @@ class Robots {
 
     late FieldType previousType;
     for (var index = 0; index < lines.length; index++) {
-      final field = _getFieldFromLine(lines.elementAt(index));
+      final field = _getFieldFromLine(lines[index]);
       if (field == null) {
         continue;
       }
@@ -112,8 +161,12 @@ class Robots {
           final RegExp pattern;
           try {
             pattern = _convertPathToRegExp(field.value);
-          } on FormatException {
-            break;
+          } on FormatException catch (exception) {
+            if (throwOnError) {
+              throw wrapFormatException(exception, field.value, index);
+            } else {
+              break;
+            }
           }
           disallows.add(
             Rule(
@@ -131,8 +184,12 @@ class Robots {
           final RegExp pattern;
           try {
             pattern = _convertPathToRegExp(field.value);
-          } on FormatException {
-            break;
+          } on FormatException catch (exception) {
+            if (throwOnError) {
+              throw wrapFormatException(exception, field.value, index);
+            } else {
+              break;
+            }
           }
           allows.add(
             Rule(
@@ -221,6 +278,21 @@ class Robots {
   }
 }
 
+/// Taking an [exception], a [line] and the [index] of that line, creates a more
+/// informational `FormatException`.
+@internal
+FormatException wrapFormatException(
+  Exception exception,
+  String line,
+  int index,
+) =>
+    FormatException('''
+Line $index of the file, defined as
+  $line
+is invalid:
+  $exception
+''');
+
 /// Describes the type of a rule.
 @internal
 enum RuleType {
@@ -270,6 +342,10 @@ enum FieldType {
 
   /// Contains the field types that introduce rules.
   static const rules = [FieldType.allow, FieldType.disallow];
+
+  /// A partial regular expression defining a union of the default field names.
+  static final defaultFieldNameExpression =
+      FieldType.values.map((value) => value.key).join('|');
 
   /// Constructs a `FieldType`.
   const FieldType({required this.key, required this.example});

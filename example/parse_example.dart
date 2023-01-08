@@ -12,7 +12,7 @@ Future<void> main() async {
   // Print the rulesets.
   for (final ruleset in robots.rulesets) {
     // Print the user-agent this ruleset applies to.
-    print(ruleset.userAgent);
+    print('User-agent: ${ruleset.userAgent}');
 
     if (ruleset.allows.isNotEmpty) {
       print('Allowed:');
@@ -33,10 +33,16 @@ Future<void> main() async {
     }
   }
 
+  const userAgent = 'wordcollector';
+
   // False: it cannot.
-  print(robots.verifyCanAccess('/gist/', userAgent: '*'));
+  print(
+    "Can '$userAgent' access /gist/? ${robots.verifyCanAccess('/gist/', userAgent: userAgent)}",
+  );
   // True: it can.
-  print(robots.verifyCanAccess('/wordcollector/robots_txt', userAgent: '*'));
+  print(
+    "Can '$userAgent' access /wordcollector/robots_txt/? ${robots.verifyCanAccess('/wordcollector/robots_txt/', userAgent: userAgent)}",
+  );
 }
 
 Future<String> fetchFileContents({required String host}) async {

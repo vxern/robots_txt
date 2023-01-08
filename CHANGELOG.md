@@ -1,3 +1,8 @@
+## 2.1.0
+
+- Added a method `.validate()` for validating files.
+- Renamed `parser.dart` to `robots.dart`.
+
 ## 2.0.1
 
 - Converted the `onlyApplicableTo` parameter in `Robots.parse()` from a `String`
@@ -8,8 +13,9 @@
 ## 2.0.0
 
 - Additions:
-  - Added developer dependencies:
+  - Added dependencies:
     - `meta` for static analysis.
+  - Added developer dependencies:
     - `test` for testing.
   - Added support for the 'Sitemap' field.
   - Added support for specifying:
