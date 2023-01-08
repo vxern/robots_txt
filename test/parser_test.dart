@@ -6,6 +6,7 @@ import 'contents_definitions.dart';
 
 void main() {
   late Robots robots;
+
   group('The parser correctly parses', () {
     group('file contents', () {
       test('that are empty.', () {
@@ -131,6 +132,36 @@ void main() {
           equals(false),
         );
       });
+
+      test(
+        'that disallow a file for A, B and C, but the parser only reads '
+        'rules applicable to A and C.',
+        () {
+          expect(
+            () => robots = Robots.parse(
+              fileDisallowedForAAndBAndC,
+              onlyApplicableTo: const {'A', 'C'},
+            ),
+            returnsNormally,
+          );
+          expect(
+            robots.rulesets.map((ruleset) => ruleset.userAgent).toSet(),
+            equals(<String>{'A', 'C'}),
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'A'),
+            equals(false),
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'B'),
+            equals(true),
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'C'),
+            equals(false),
+          );
+        },
+      );
     });
 
     group('rules', () {

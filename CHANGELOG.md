@@ -1,3 +1,10 @@
+## 2.0.1
+
+- Converted the `onlyApplicableTo` parameter in `Robots.parse()` from a `String`
+  into a `Set` to allow multiple user-agents to be specified at once.
+- Fixed the `onlyApplicableTo` parameter in `Robots.parse()` not being taken
+  into account.
+
 ## 2.0.0
 
 - Additions:

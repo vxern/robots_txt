@@ -55,6 +55,14 @@ ${FieldType.userAgent.toField('A')}
 ${FieldType.allow.toField('/file.txt')}
 ''';
 
+/// File disallowed for 'A', 'B' and 'C'.
+final fileDisallowedForAAndBAndC = '''
+${FieldType.userAgent.toField('A')}
+${FieldType.userAgent.toField('B')}
+${FieldType.userAgent.toField('C')}
+${FieldType.disallow.toField('/file.txt')}
+''';
+
 /// Directory disallowed.
 final directoryDisallowed = '''
 ${FieldType.userAgent.toField('*')}

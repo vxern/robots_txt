@@ -1,5 +1,5 @@
 name: robots_txt
-version: 2.0.0
+version: 2.0.1
 
 description: A complete, dependency-less and fully documented `robots.txt` ruleset parser.
 

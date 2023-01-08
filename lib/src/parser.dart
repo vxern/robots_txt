@@ -29,7 +29,10 @@ class Robots {
   /// rulesets that do not apply to it.
   ///
   /// This function will never throw an exception.
-  factory Robots.parse(String contents, {String? onlyApplicableTo}) {
+  factory Robots.parse(
+    String contents, {
+    Set<String>? onlyApplicableTo,
+  }) {
     contents = contents.replaceAll(commentPattern, '');
 
     if (contents.trim().isEmpty) {
@@ -38,14 +41,14 @@ class Robots {
 
     final lines = contents.split('\n').where((line) => line.isNotEmpty);
 
-    return Robots._fromLines(lines, onlyFor: onlyApplicableTo);
+    return Robots._fromLines(lines, onlyApplicableTo: onlyApplicableTo);
   }
 
   /// Iterates over [lines] and sequentially parses each ruleset, optionally
-  /// ignoring those rulesets which are not relevant to [onlyFor].
+  /// ignoring those rulesets which are not relevant to [onlyApplicableTo].
   factory Robots._fromLines(
     Iterable<String> lines, {
-    String? onlyFor,
+    Set<String>? onlyApplicableTo,
   }) {
     final rulesets = <Ruleset>[];
     final sitemaps = <String>[];
@@ -94,7 +97,8 @@ class Robots {
             reset();
           }
 
-          if (onlyFor != null && field.key != onlyFor) {
+          if (onlyApplicableTo != null &&
+              !onlyApplicableTo.contains(field.value)) {
             break;
           }
 
