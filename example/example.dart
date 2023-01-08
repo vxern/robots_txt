@@ -1,42 +1,53 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:robots_txt/robots_txt.dart';
-import 'package:web_scraper/web_scraper.dart';
 
 Future<void> main() async {
-  // Get contents of the `robots.txt` file.
-  final contents = await fetchFileContents(host: 'https://github.com');
-  // Create an instance of the `robots.txt` parser.
-  final robots = Robots();
-  // Read the ruleset of the website.
-  await robots.read(contents);
-  // Print the ruleset.
+  // Get the contents of the `robots.txt` file.
+  final contents = await fetchFileContents(host: 'github.com');
+  // Parse the contents.
+  final robots = Robots.parse(contents);
+
+  // Print the rulesets.
   for (final ruleset in robots.rulesets) {
-    // Print the user-agent the ruleset applies to.
-    print(ruleset.appliesTo);
+    // Print the user-agent this ruleset applies to.
+    print(ruleset.userAgent);
+
     if (ruleset.allows.isNotEmpty) {
-      print('Allows:');
+      print('Allowed:');
     }
-    // Print the path expressions allowed by this ruleset.
+    // Print the regular expressions that match to paths allowed by this
+    // ruleset.
     for (final rule in ruleset.allows) {
-      print('  - ${rule.expression}');
+      print('  - ${rule.pattern}');
     }
+
     if (ruleset.disallows.isNotEmpty) {
-      print('Disallows:');
+      print('Disallowed:');
     }
-    // Print the path expressions disallowed by this ruleset.
+    // Print the regular expressions that match to paths disallowed by this
+    // ruleset.
     for (final rule in ruleset.disallows) {
-      print('  - ${rule.expression}');
+      print('  - ${rule.pattern}');
     }
   }
+
   // False: it cannot.
-  print(robots.canVisitPath('/gist/', userAgent: '*'));
+  print(robots.verifyCanAccess('/gist/', userAgent: '*'));
   // True: it can.
-  print(robots.canVisitPath('/wordcollector/robots_txt', userAgent: '*'));
+  print(robots.verifyCanAccess('/wordcollector/robots_txt', userAgent: '*'));
 }
 
 Future<String> fetchFileContents({required String host}) async {
-  final scraper = WebScraper(host);
-  await scraper.loadWebPage('/robots.txt');
-  final body = scraper.getElement('body', [])[0];
-  final contents = body['title'] as String;
+  final client = HttpClient();
+
+  final contents = await client
+      .get(host, 80, '/robots.txt')
+      .then((request) => request.close())
+      .then((response) => response.transform(utf8.decoder).join());
+
+  client.close();
+
   return contents;
 }

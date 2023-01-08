@@ -1,46 +1,67 @@
+import 'package:meta/meta.dart';
+
+import 'package:robots_txt/src/parser.dart';
 import 'package:robots_txt/src/rule.dart';
 
 /// A collection of `Rule`s, and the `user-agent` they are relevant to inside
 /// the `robots.txt` file.
+@immutable
+@sealed
 class Ruleset {
-  /// The `user-agent` which this ruleset applies to.
-  final String appliesTo;
+  /// The user-agent which this ruleset applies to.
+  final String userAgent;
 
-  /// List of `Rule`s which explicitly state that a path may be traversed.
-  final List<Rule> allows = [];
+  /// List of `Rule`s which state that a path may not be traversed.
+  final List<Rule> disallows;
 
-  /// List of `Rule`s which explicitly state that a path may not be traversed.
-  final List<Rule> disallows = [];
+  /// List of `Rule`s which state that a path may be traversed.
+  final List<Rule> allows;
+
+  /// Whether this ruleset applies to all user-agents.
+  final bool appliesToAll;
 
   /// Instantiates a ruleset with the `user-agent`.
-  Ruleset(this.appliesTo);
+  const Ruleset({
+    required this.userAgent,
+    required this.allows,
+    required this.disallows,
+  }) : appliesToAll = userAgent == '*';
 
   /// Checks whether this ruleset applies to [userAgent].
-  bool doesConcern(String userAgent) =>
-      appliesTo == '*' || appliesTo == userAgent;
+  bool appliesTo(String userAgent) =>
+      appliesToAll || this.userAgent == userAgent;
 }
 
-/// Extends `List<Ruleset>` with a method for getting a single `Rule` from the
-/// list of `Rulesets`
-extension RulingOfRulesets on List<Ruleset> {
-  /// Gets the rule which [appliesTo], [concernsPath] [andAllowsIt].
-  Rule? getRule({
-    required String appliesTo,
-    required String concernsPath,
-    required bool andAllowsIt,
-  }) =>
-      fold<Rule?>(null, (current, next) {
-        if (!next.doesConcern(appliesTo)) {
-          return current;
-        }
+/// Extends `List<Ruleset>` with a  method used to find a rule that matches
+/// the supplied filters.
+extension FindRuleInRuleset on List<Ruleset> {
+  /// Gets the rule that applies to [userAgent], pertains to [path] and is of
+  /// type [type].
+  Rule? findApplicableRule({
+    required String userAgent,
+    required String path,
+    required RuleType type,
+    PrecedenceStrategy comparisonMethod = PrecedenceStrategy.defaultStrategy,
+  }) {
+    for (final ruleset in this) {
+      final rules = type == RuleType.allow ? ruleset.allows : ruleset.disallows;
+      if (rules.isEmpty) {
+        continue;
+      }
 
-        final currentPriority = current?.priority ?? -1;
-        final relevantRules = andAllowsIt ? next.allows : next.disallows;
-        final nextRule = relevantRules.getRulingOnPath(concernsPath);
+      if (!ruleset.appliesTo(userAgent)) {
+        continue;
+      }
 
-        if (nextRule == null || nextRule.priority < currentPriority) {
-          return current;
-        }
-        return nextRule;
-      });
+      final rule = rules.findMostApplicable(
+        path: path,
+        comparisonMethod: comparisonMethod,
+      );
+      if (rule != null) {
+        return rule;
+      }
+    }
+
+    return null;
+  }
 }

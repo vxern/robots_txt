@@ -1,9 +1,7 @@
 name: robots_txt
 version: 2.0.0
 
-description: >-
-  A lightweight `robots.txt` ruleset parser to ensure your application adheres
-  the de facto standard.
+description: A complete, dependency-less and fully documented `robots.txt` ruleset parser.
 
 homepage: https://github.com/wordcollector/robots_txt
 repository: https://github.com/wordcollector/robots_txt
@@ -12,6 +10,8 @@ issue_tracker: https://github.com/wordcollector/robots_txt/issues
 environment:
   sdk: '>=2.17.0 <3.0.0'
 
+dependencies:
+  meta: ^1.8.0 # Used for static analysis.
+
 dev_dependencies:
-  web_scraper: ^0.1.4
-  words: ^0.2.0
+  words: ^0.2.0 # Stricter lints.
