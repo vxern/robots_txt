@@ -1,24 +1,23 @@
-## A lightweight `robots.txt` ruleset parser to ensure your application follows the standard protocol.
+## A complete, dependency-less and fully documented `robots.txt` ruleset parser.
 
 ### Usage
 
 The following code gets the `robots.txt` robot exclusion ruleset of a website.
 
-`quietMode` determines whether or not the library should print warning messages in the case of the `robots.txt` not being valid or other errors.
-
 ```dart
-// Create an instance of the `robots.txt` parser
-final robots = Robots(host: 'https://github.com/');
-// Read the ruleset of the website
-await robots.read();
+// Get the contents of the `robots.txt` file.
+final contents = /* Your method of obtaining the contents of a `robots.txt` file. */;
+// Parse the contents.
+final robots = Robots.parse(contents);
 ```
 
-Now that the `robots.txt` file has been read, we can verify whether we can visit a certain path or not:
+Now that the `robots.txt` file has been read, we can verify whether we can visit
+a certain path or not:
 
 ```dart
-final userAgent = '*';
-print("Can '$userAgent' visit '/gist/'?");
-print(robots.canVisitPath('/gist/', userAgent: '*')); // It cannot
-print("Can '$userAgent' visit '/wordcollector/robots_txt'?");
-print(robots.canVisitPath('/wordcollector/robots_txt', userAgent: '*')); // It can
+final userAgent = /* Your user agent. */;
+// False: it cannot.
+print(robots.verifyCanAccess('/gist/', userAgent: userAgent));
+// True: it can.
+print(robots.verifyCanAccess('/wordcollector/robots_txt', userAgent: userAgent));
 ```

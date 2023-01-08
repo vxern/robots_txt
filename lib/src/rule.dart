@@ -1,30 +1,79 @@
+import 'package:meta/meta.dart';
+
 /// A single rule (either `Allow` or `Disallow`) inside the `robots.txt` file.
+@immutable
+@sealed
 class Rule {
-  /// An expression which a path may be matched against to determine whether
-  /// this rule applies to the path.
-  final RegExp expression;
+  /// A regular expression matching to a particular path.
+  final RegExp pattern;
 
-  /// The priority of this rule based on its position inside the `robots.txt`
-  /// file.  If the path is determined to be relevant to two rules, the rule
-  /// with the higher priority *overrides* the ruling of the other.
-  final int priority;
+  /// The precedence of this rule based on its position inside the `robots.txt`
+  /// file. The rule with the higher precedence is used to decide whether or not
+  /// a path may be visited.
+  final int _precedence;
 
-  /// Instantiates a rule with an [expression] and the [priority] it has over
+  /// Instantiates a rule with an [pattern] and the [precedence] it has over
   /// other rules.
-  const Rule(this.expression, this.priority);
+  const Rule({required this.pattern, required int precedence})
+      : _precedence = precedence;
 }
 
-/// Extends `List<Rule>` with a method for getting the `Rule` with the highest
-/// [Rule.priority].
-extension RulingOnPath on List<Rule> {
-  /// Taking [path], checks which `Rule`s' expressions match [path], and
-  /// returns the `Rule` with the highest priority.
-  Rule? getRulingOnPath(String path) {
-    final relevantRules = where((rule) => rule.expression.hasMatch(path));
-    if (relevantRules.isEmpty) {
+/// Extends `List<Rule>` with methods used to find rule that pertain to a
+/// certain path.
+extension FindRule on List<Rule> {
+  /// Taking a [path], returns the `Rule`s that pertain to it.
+  List<Rule> findApplicable({required String path}) =>
+      where((rule) => rule.pattern.hasMatch(path)).toList();
+
+  /// Taking a [path], gets the `Rule`s that pertain to it, and returns the
+  /// `Rule` that has precedence over the other rules.
+  Rule? findMostApplicable({
+    required String path,
+    PrecedenceStrategy comparisonMethod = PrecedenceStrategy.defaultStrategy,
+  }) {
+    final comparisonFunction = _ruleComparisonFunctions[comparisonMethod]!;
+
+    final applicableRules = findApplicable(path: path);
+    if (applicableRules.isEmpty) {
       return null;
     }
-    // Get the relevant rule with the highest priority
-    return relevantRules.reduce((a, b) => a.priority > b.priority ? a : b);
+
+    return applicableRules.reduce(comparisonFunction);
   }
+}
+
+/// Extends `Rule?` with a getter `precedence` to avoid having to explicitly
+/// default to `-1` whenever attempting to access the hidden property
+/// `_precedence` on a nullish value.
+extension Precedence on Rule? {
+  /// Gets the precedence of this rule. Defaults to `-1` if `null`.
+  int get precedence => this?._precedence ?? -1;
+}
+
+/// The signature of a method that compares two variables of type `T` and
+/// returns the one supposed 'greater'.
+@internal
+typedef ComparisonFunction<T> = T Function(T a, T b);
+
+/// `ComparisonFunction`s matched to `PrecedenceStrategy`s.
+final _ruleComparisonFunctions =
+    Map<PrecedenceStrategy, ComparisonFunction<Rule>>.unmodifiable(
+  <PrecedenceStrategy, ComparisonFunction<Rule>>{
+    PrecedenceStrategy.higherTakesPrecedence: (a, b) =>
+        a.precedence > b.precedence ? a : b,
+    PrecedenceStrategy.lowerTakesPrecedence: (a, b) =>
+        a.precedence < b.precedence ? a : b,
+  },
+);
+
+/// Defines the strategy to use to compare rules as per their `precedence`.
+enum PrecedenceStrategy {
+  /// The rule defined higher up in the `robots.txt` file takes precedence.
+  higherTakesPrecedence,
+
+  /// The rule defines lower down in the `robots.txt` file takes precedence.
+  lowerTakesPrecedence;
+
+  /// Defines the default strategy to use to compare rules.
+  static const defaultStrategy = PrecedenceStrategy.higherTakesPrecedence;
 }

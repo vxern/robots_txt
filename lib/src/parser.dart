@@ -1,101 +1,163 @@
+import 'package:meta/meta.dart';
+
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
-import 'package:sprint/sprint.dart';
-import 'package:web_scraper/web_scraper.dart';
 
-/// Abstracts away the rather convoluted declaration for an element with two
-/// fields; 'title' and 'attributes'.  'attributes' is a map containing the
-/// attributes of the element.
-typedef Element = Map<String, Map<String, dynamic>>;
+/// Defines a Regex pattern that matches to comments.
+final commentPattern = RegExp('#.*');
 
-/// Allows for parsing of a host's `robots.txt` to get information about which
-/// of its resources may or may not be accessed, as well as which of its pages
-/// cannot be traversed.
+/// Stores information about a `robots.txt` file, exposing a simple and concise
+/// API for working with the file and validating if a certain path can be
+/// accessed by a given user-agent.
+@immutable
+@sealed
 class Robots {
-  /// Instance of `Sprint` message logger for the `robots.txt` parser.
-  final Sprint log;
+  /// Stores information about the rules specified for given user-agents.
+  final List<Ruleset> rulesets;
 
-  /// The host of this `robots.txt` file.
-  final String host;
+  /// Stores links to the website's sitemaps.
+  final List<String> sitemaps;
 
-  /// Stores an instance of the scraper for a given URL.
-  final WebScraper scraper;
+  /// Defines an instance of `Robots` with no rulesets.
+  static const _empty = Robots._construct(rulesets: [], sitemaps: []);
 
-  /// Stores expressions for both paths which may or may not be traversed.
-  final List<Ruleset> rulesets = [];
+  /// Creates an instance of `Robots`.
+  const Robots._construct({required this.rulesets, required this.sitemaps});
 
-  /// Creates an instance of a `robots.txt` parser for the provided [host].
-  Robots({
-    required this.host,
-    bool quietMode = false,
-    bool productionMode = true,
-  })  : scraper = WebScraper(host),
-        log = Sprint(
-          'Robots',
-          quietMode: quietMode,
-          productionMode: productionMode,
-        );
+  /// Parses the contents of a `robots.txt` file, creating an instance of
+  /// `Robots`. If [onlyApplicableTo] is specified, the parser will ignore any
+  /// rulesets that do not apply to it.
+  ///
+  /// This function will never throw an exception.
+  factory Robots.parse(String contents, {String? onlyApplicableTo}) {
+    contents = contents.replaceAll(commentPattern, '');
 
-  /// Reads and parses the `robots.txt` file of the [host].
-  Future<void> read({String? onlyRelevantTo}) async {
-    await scraper.loadWebPage('/robots.txt');
-    final body = scraper.getElement('body', [])[0];
-
-    final invalidRobotsFileError = "'$host' has an invalid `robots.txt`:";
-
-    if (body.isEmpty) {
-      log.warn('$invalidRobotsFileError No text elements found');
-      return;
+    if (contents.trim().isEmpty) {
+      return Robots._empty;
     }
 
-    final content = body['title'] as String;
-    final lines = content.split('\n').where((line) => line.isNotEmpty);
-    parseRulesets(lines, onlyRelevantTo: onlyRelevantTo);
+    final lines = contents.split('\n').where((line) => line.isNotEmpty);
+
+    return Robots._fromLines(lines, onlyFor: onlyApplicableTo);
   }
 
-  /// Iterates over [lines] and parses each ruleset, additionally ignoring
-  /// those rulesets which are not relevant to [onlyRelevantTo].
-  void parseRulesets(Iterable<String> lines, {String? onlyRelevantTo}) {
-    Ruleset? ruleset;
-    for (var index = 0; index < lines.length; index++) {
-      final field = getRobotsFieldFromLine(lines.elementAt(index));
+  /// Iterates over [lines] and sequentially parses each ruleset, optionally
+  /// ignoring those rulesets which are not relevant to [onlyFor].
+  factory Robots._fromLines(
+    Iterable<String> lines, {
+    String? onlyFor,
+  }) {
+    final rulesets = <Ruleset>[];
+    final sitemaps = <String>[];
 
-      switch (field.key) {
-        case 'user-agent':
-          if (ruleset != null) {
-            rulesets.add(ruleset);
-          }
-          if (onlyRelevantTo != null && field.key != onlyRelevantTo) {
-            ruleset = null;
-            break;
-          }
-          ruleset = Ruleset(field.value);
-          break;
+    // Temporary data used for parsing rulesets.
+    final userAgents = <String>[];
+    final allows = <Rule>[];
+    final disallows = <Rule>[];
 
-        case 'allow':
-          if (ruleset != null) {
-            final expression = convertFieldPathToExpression(field.value);
-            ruleset.allows.add(Rule(expression, index));
-          }
-          break;
-        case 'disallow':
-          if (ruleset != null) {
-            final expression = convertFieldPathToExpression(field.value);
-            ruleset.disallows.add(Rule(expression, index));
-          }
-          break;
+    bool isReadingRuleset() => userAgents.isNotEmpty;
+
+    void saveRulesets() {
+      for (final userAgent in userAgents) {
+        rulesets.add(
+          Ruleset(
+            userAgent: userAgent,
+            allows: List.from(allows),
+            disallows: List.from(disallows),
+          ),
+        );
       }
     }
 
-    if (ruleset != null) {
-      rulesets.add(ruleset);
+    void reset() {
+      userAgents.clear();
+      allows.clear();
+      disallows.clear();
     }
+
+    late FieldType previousType;
+    for (var index = 0; index < lines.length; index++) {
+      final field = _getFieldFromLine(lines.elementAt(index));
+      if (field == null) {
+        continue;
+      }
+
+      final type = FieldType.byKey(field.key);
+      if (type == null) {
+        continue;
+      }
+
+      switch (type) {
+        case FieldType.userAgent:
+          if (userAgents.isNotEmpty && previousType != FieldType.userAgent) {
+            saveRulesets();
+            reset();
+          }
+
+          if (onlyFor != null && field.key != onlyFor) {
+            break;
+          }
+
+          userAgents.add(field.value);
+          break;
+        case FieldType.disallow:
+          if (!isReadingRuleset()) {
+            break;
+          }
+
+          final RegExp pattern;
+          try {
+            pattern = _convertPathToRegExp(field.value);
+          } on FormatException {
+            break;
+          }
+          disallows.add(
+            Rule(
+              pattern: pattern,
+              precedence: lines.length - (index + 1),
+            ),
+          );
+
+          break;
+        case FieldType.allow:
+          if (!isReadingRuleset()) {
+            break;
+          }
+
+          final RegExp pattern;
+          try {
+            pattern = _convertPathToRegExp(field.value);
+          } on FormatException {
+            break;
+          }
+          allows.add(
+            Rule(
+              pattern: pattern,
+              precedence: lines.length - (index + 1),
+            ),
+          );
+
+          break;
+        case FieldType.sitemap:
+          sitemaps.add(field.value);
+          break;
+      }
+
+      previousType = type;
+    }
+
+    if (isReadingRuleset()) {
+      saveRulesets();
+      reset();
+    }
+
+    return Robots._construct(rulesets: rulesets, sitemaps: sitemaps);
   }
 
   /// Reads a path declaration from within `robots.txt` and converts it to a
   /// regular expression for later matching.
-  RegExp convertFieldPathToExpression(String pathDeclaration) {
-    // Collapse duplicate slashes and wildcards into singles.
+  static RegExp _convertPathToRegExp(String pathDeclaration) {
+    // Collapse duplicate slashes and wildcards into single ones.
     final collapsed =
         pathDeclaration.replaceAll('/+', '/').replaceAll('*+', '*');
     final normalised = collapsed.endsWith('*')
@@ -104,35 +166,126 @@ class Robots {
     final withWildcardsReplaced =
         normalised.replaceAll('.', r'\.').replaceAll('*', '.*');
     final withTrailingText = withWildcardsReplaced.contains(r'$')
-        ? withWildcardsReplaced.split(r'$')[0]
+        ? withWildcardsReplaced.split(r'$').first
         : '$withWildcardsReplaced.*';
     return RegExp(withTrailingText, caseSensitive: false, dotAll: true);
   }
 
   /// Extracts the key and value from [target] and puts it into a `MapEntry`.
-  MapEntry<String, String> getRobotsFieldFromLine(String target) {
+  static MapEntry<String, String>? _getFieldFromLine(String target) {
     final keyValuePair = target.split(':');
-    final key = keyValuePair[0].toLowerCase();
+    if (keyValuePair.length < 2) {
+      return null;
+    }
+
+    final key = keyValuePair.first.trim();
     final value = keyValuePair.sublist(1).join(':').trim();
     return MapEntry(key, value);
   }
 
-  /// Determines whether or not [path] may be traversed.
-  bool canVisitPath(String path, {required String userAgent}) {
-    final explicitAllowance = rulesets.getRule(
-      appliesTo: userAgent,
-      concernsPath: path,
-      andAllowsIt: true,
+  /// Checks if the `robots.txt` file allows [userAgent] to access [path].
+  bool verifyCanAccess(
+    String path, {
+    required String userAgent,
+    PrecedentRuleType typePrecedence = PrecedentRuleType.defaultPrecedentType,
+    PrecedenceStrategy comparisonMethod = PrecedenceStrategy.defaultStrategy,
+  }) {
+    final allowedBy = rulesets.findApplicableRule(
+      userAgent: userAgent,
+      path: path,
+      type: RuleType.allow,
+      comparisonMethod: comparisonMethod,
     );
-    final explicitDisallowance = rulesets.getRule(
-      appliesTo: userAgent,
-      concernsPath: path,
-      andAllowsIt: false,
+    final disallowedBy = rulesets.findApplicableRule(
+      userAgent: userAgent,
+      path: path,
+      type: RuleType.disallow,
+      comparisonMethod: comparisonMethod,
     );
 
-    final allowancePriority = explicitAllowance?.priority ?? -1;
-    final disallowancePriority = explicitDisallowance?.priority ?? -1;
-
-    return allowancePriority >= disallowancePriority;
+    switch (typePrecedence) {
+      case PrecedentRuleType.defaultPrecedentType:
+      // TODO(vxern): Below is a fix for an issue in Dart 2.18 with the enhanced
+      //  enums. This issue is fixed in 2.19, which is still on the beta
+      //  channel. Refer to: https://github.com/dart-lang/sdk/issues/49188
+      // ignore: no_duplicate_case_values
+      case PrecedentRuleType.allow:
+        return allowedBy != null || disallowedBy == null;
+      case PrecedentRuleType.disallow:
+        return disallowedBy != null || allowedBy == null;
+    }
   }
+}
+
+/// Describes the type of a rule.
+@internal
+enum RuleType {
+  /// A rule explicitly allows a given path.
+  allow,
+
+  /// A rule explicitly disallows a given path.
+  disallow,
+}
+
+/// Defines the method used to decide whether rules that explicitly allow a
+/// user-agent to access a path take precedence over ones that disallow it to do
+/// so, or the other way around.
+enum PrecedentRuleType {
+  /// The rule that explicitly allows a user-agent to access a path takes
+  /// precedence over rules that explicitly disallow it.
+  allow,
+
+  /// The rule that explicitly disallows a user-agent to access a path takes
+  /// precedence over rules that explicitly allow it.
+  disallow;
+
+  /// Defines the default precedent rule type.
+  static const defaultPrecedentType = PrecedentRuleType.allow;
+}
+
+/// Defines a key-value field of a `robots.txt` file specifying a rule.
+@visibleForTesting
+enum FieldType {
+  /// A field specifying the user-agent the following fields apply to.
+  userAgent(key: 'User-agent', example: '*'),
+
+  /// A field explicitly disallowing a user-agent to visit a path.
+  disallow(key: 'Disallow', example: '/'),
+
+  /// A field explicitly allowing a user-agent to visit a path.
+  allow(key: 'Allow', example: '/file.txt'),
+
+  /// A field specifying the location of a sitemap of a website.
+  sitemap(key: 'Sitemap', example: 'https://example.com/sitemap.xml');
+
+  /// The name of the field key.
+  final String key;
+
+  /// An example of a field definition. Used for testing.
+  final String example;
+
+  /// Contains the field types that introduce rules.
+  static const rules = [FieldType.allow, FieldType.disallow];
+
+  /// Constructs a `FieldType`.
+  const FieldType({required this.key, required this.example});
+
+  /// Converts a `FieldType` to a `robots.txt` field.
+  String toField([String? value]) => '$key: ${value ?? example}';
+
+  /// Attempts to resolve [key] to a `FieldKey` corresponding to that [key].
+  /// Returns `null` if not found.
+  static FieldType? byKey(String key) {
+    for (final value in FieldType.values) {
+      if (key == value.key) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  @override
+  @Deprecated('Use `toField()` instead')
+  String toString();
 }
