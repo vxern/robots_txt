@@ -49,7 +49,7 @@ void main() {
       });
     });
 
-    group('rules with logical applicability', () {
+    group('rules with logic-based applicability', () {
       test('defined without a user agent.', () {
         expect(
           () => robots = Robots.parse(rulesWithoutUserAgent),

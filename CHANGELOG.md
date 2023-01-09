@@ -1,3 +1,7 @@
+## 2.1.0+1
+
+- Updated README.md.
+
 ## 2.1.0
 
 - Added a method `.validate()` for validating files.

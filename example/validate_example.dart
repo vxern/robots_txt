@@ -3,12 +3,12 @@ import 'package:robots_txt/robots_txt.dart';
 Future<void> main() async {
   // Validating an invalid file will throw a `FormatException`.
   try {
-    Robots.validate('This is obviously an invalid robots.txt file.');
+    Robots.validate('This is an obviously invalid robots.txt file.');
   } on FormatException {
     print('As expected, the first file is flagged as invalid.');
   }
 
-  // Validating an already valid file.
+  // Validating an already valid file will not throw anything.
   try {
     Robots.validate('''
 User-agent: *

@@ -33,7 +33,7 @@ Future<void> main() async {
     }
   }
 
-  const userAgent = 'wordcollector';
+  const userAgent = 'WordCollector';
 
   // False: it cannot.
   print(
