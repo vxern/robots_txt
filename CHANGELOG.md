@@ -1,3 +1,7 @@
+## 2.2.0+2
+
+- Small phrasing change in README.md.
+
 ## 2.2.0+1
 
 - Compiled the example files into a single file `example.dart`.

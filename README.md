@@ -20,9 +20,8 @@ print(robots.verifyCanAccess('/gist/', userAgent: userAgent)); // False
 print(robots.verifyCanAccess('/wordcollector/robots_txt/', userAgent: userAgent)); // True
 ```
 
-If you are not concerned about rules pertaining to any other user-agents, and we
-only care about our own, you may instruct the parser to ignore them by
-specifying only those that matter to us:
+If you are only concerned about directives pertaining to your own user-agent,
+you may instruct the parser to ignore other user-agents as follows:
 
 ```dart
 // Parse the contents, disregarding user-agents other than 'WordCollector'.
