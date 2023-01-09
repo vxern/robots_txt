@@ -3,8 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:robots_txt/src/robots.dart';
 import 'package:robots_txt/src/rule.dart';
 
-/// A collection of `Rule`s, and the `user-agent` they are relevant to inside
-/// the `robots.txt` file.
+/// A collection of `Rule`s applicable to a particular [userAgent].
 @immutable
 @sealed
 class Ruleset {
@@ -17,14 +16,19 @@ class Ruleset {
   /// List of `Rule`s which state that a path may be traversed.
   final List<Rule> allows;
 
+  /// The number of seconds of delay that crawlers should add in-between
+  /// accesses.
+  final int? crawlDelaySeconds;
+
   /// Whether this ruleset applies to all user-agents.
   final bool appliesToAll;
 
-  /// Instantiates a ruleset with the `user-agent`.
+  /// Instantiates a ruleset for the specified [userAgent].
   const Ruleset({
     required this.userAgent,
     required this.allows,
     required this.disallows,
+    this.crawlDelaySeconds,
   }) : appliesToAll = userAgent == '*';
 
   /// Checks whether this ruleset applies to [userAgent].

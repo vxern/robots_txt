@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// A single rule (either `Allow` or `Disallow`) inside the `robots.txt` file.
+/// A single rule (either `Allow` or `Disallow`) inside a `robots.txt` file.
 @immutable
 @sealed
 class Rule {

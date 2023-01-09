@@ -51,9 +51,11 @@ try {
 try {
   Robots.validate('''
 User-agent: *
+Crawl-delay: 10
 Disallow: /
 Allow: /file.txt
 
+Host: https://hosting.example.com/
 Sitemap: https://example.com/sitemap.xml
 ''');
   print('As expected also, this file is not flagged as invalid.');
@@ -68,25 +70,27 @@ By default, the validator will only accept the following fields:
 - Allow
 - Disallow
 - Sitemap
+- Crawl-delay
+- Host
 
-If you want to accept files that feature any other fields, such as `Crawl-delay`
-or `Host`, you will have to specify them as so:
+If you want to accept files that feature any other fields, you will have to
+specify them as so:
 
 ```dart
 try {
   Robots.validate(
     '''
 User-agent: *
-Crawl-delay: 5
+Custom-field: value
 ''',
-    allowedFieldNames: {'Crawl-delay'},
+    allowedFieldNames: {'Custom-field'},
   );
 } on FormatException {
   // Code to handle an invalid file.
 }
 ```
 
-By default, the `Allow` field is considered to have precedence by the parser.
+By default, the `Allow` field is treated as having precedence by the parser.
 This is the standard approach to both writing and reading `robots.txt` files,
 however, you can instruct the parser to follow another approach by telling it to
 do so:

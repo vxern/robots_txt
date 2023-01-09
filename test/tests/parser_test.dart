@@ -31,11 +31,16 @@ void main() {
           () => robots = Robots.parse(validContentsValidPattern),
           returnsNormally,
         );
+
         expect(robots.rulesets.length, equals(1));
+
         final ruleset = robots.rulesets.first;
         expect(ruleset.disallows.length, equals(1));
         expect(ruleset.allows.length, equals(1));
+
         expect(robots.sitemaps.length, equals(1));
+        expect(robots.hosts, equals([FieldType.host.example]));
+
         expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(false));
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
@@ -45,7 +50,12 @@ void main() {
 
       test('that define a sitemap.', () {
         expect(() => robots = Robots.parse(sitemap), returnsNormally);
-        expect(robots.sitemaps, equals(<String>[FieldType.sitemap.example]));
+        expect(robots.sitemaps, equals([FieldType.sitemap.example]));
+      });
+
+      test('that define a host.', () {
+        expect(() => robots = Robots.parse(host), returnsNormally);
+        expect(robots.hosts, equals([FieldType.host.example]));
       });
     });
 

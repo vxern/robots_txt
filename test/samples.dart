@@ -35,6 +35,9 @@ final rulesDefinedBeforeUserAgent = [...FieldType.rules, FieldType.userAgent]
 /// Example sitemap field.
 final sitemap = FieldType.sitemap.toField();
 
+/// Example host field.
+final host = FieldType.host.toField();
+
 /// File disallowed for user-agent 'A'.
 final fileDisallowedForA = '''
 ${FieldType.userAgent.toField('A')}

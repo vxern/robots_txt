@@ -12,9 +12,11 @@ Future<void> main() async {
   try {
     Robots.validate('''
 User-agent: *
+Crawl-delay: 10
 Disallow: /
 Allow: /file.txt
 
+Host: https://hosting.example.com/
 Sitemap: https://example.com/sitemap.xml
 ''');
     print('As expected also, the second file is not flagged as invalid.');

@@ -31,11 +31,22 @@ class Robots {
   /// Stores links to the website's sitemaps.
   final List<String> sitemaps;
 
+  /// Stores the preferred domains for a website with multiple mirrors.
+  final List<String> hosts;
+
   /// Defines an instance of `Robots` with no rulesets.
-  static const _empty = Robots._construct(rulesets: [], sitemaps: []);
+  static const _empty = Robots._construct(
+    rulesets: [],
+    sitemaps: [],
+    hosts: [],
+  );
 
   /// Creates an instance of `Robots`.
-  const Robots._construct({required this.rulesets, required this.sitemaps});
+  const Robots._construct({
+    required this.rulesets,
+    required this.sitemaps,
+    required this.hosts,
+  });
 
   /// Parses the contents of a `robots.txt` file, creating an instance of
   /// `Robots`.
@@ -59,8 +70,10 @@ class Robots {
   /// - Allow
   /// - Disallow
   /// - Sitemap
+  /// - Crawl-delay
+  /// - Host
   ///
-  /// To accept custom fields, simply specify them in the [allowedFieldNames]
+  /// To accept any other fields, simply specify them in the [allowedFieldNames]
   /// parameter.
   static void validate(
     String contents, {
@@ -101,11 +114,13 @@ class Robots {
 
     final rulesets = <Ruleset>[];
     final sitemaps = <String>[];
+    final hosts = <String>[];
 
     // Temporary data used for parsing rulesets.
     final userAgents = <String>[];
     final allows = <Rule>[];
     final disallows = <Rule>[];
+    int? crawlDelay;
 
     bool isReadingRuleset() => userAgents.isNotEmpty;
 
@@ -125,6 +140,7 @@ class Robots {
       userAgents.clear();
       allows.clear();
       disallows.clear();
+      crawlDelay = null;
     }
 
     late FieldType previousType;
@@ -202,6 +218,17 @@ class Robots {
         case FieldType.sitemap:
           sitemaps.add(field.value);
           break;
+        case FieldType.crawlDelay:
+          final value = int.tryParse(field.value);
+          if (value == null || (crawlDelay != null && value < crawlDelay!)) {
+            break;
+          }
+
+          crawlDelay = value;
+          break;
+        case FieldType.host:
+          hosts.add(field.value);
+          break;
       }
 
       previousType = type;
@@ -212,7 +239,11 @@ class Robots {
       reset();
     }
 
-    return Robots._construct(rulesets: rulesets, sitemaps: sitemaps);
+    return Robots._construct(
+      rulesets: rulesets,
+      sitemaps: sitemaps,
+      hosts: hosts,
+    );
   }
 
   /// Reads a path declaration from within `robots.txt` and converts it to a
@@ -332,7 +363,15 @@ enum FieldType {
   allow(key: 'Allow', example: '/file.txt'),
 
   /// A field specifying the location of a sitemap of a website.
-  sitemap(key: 'Sitemap', example: 'https://example.com/sitemap.xml');
+  sitemap(key: 'Sitemap', example: 'https://example.com/sitemap.xml'),
+
+  /// A field specifying a delay that crawlers should take into account when
+  /// crawling the website.
+  crawlDelay(key: 'Crawl-delay', example: '10'),
+
+  /// A field specifying the preferred domain for a website with multiple
+  /// mirrors.
+  host(key: 'Host', example: 'https://hosting.example.com');
 
   /// The name of the field key.
   final String key;

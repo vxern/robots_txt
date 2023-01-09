@@ -1,3 +1,7 @@
+## 2.2.0
+
+- Added support for the `Crawl-delay` and `Host` fields.
+
 ## 2.1.0+1
 
 - Updated README.md.
