@@ -1,3 +1,7 @@
+## 2.2.0+1
+
+- Compiled the example files into a single file `example.dart`.
+
 ## 2.2.0
 
 - Added support for the `Crawl-delay` and `Host` fields.
