@@ -1,3 +1,7 @@
+## 2.2.0+3
+
+- Updated licence bearer.
+
 ## 2.2.0+2
 
 - Small phrasing change in README.md.

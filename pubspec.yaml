@@ -1,11 +1,11 @@
 name: robots_txt
-version: 2.2.0+2
+version: 2.2.0+3
 
 description: A complete, dependency-less and fully documented `robots.txt` ruleset parser.
 
-homepage: https://github.com/wordcollector/robots_txt
-repository: https://github.com/wordcollector/robots_txt
-issue_tracker: https://github.com/wordcollector/robots_txt/issues
+homepage: https://github.com/vxern/robots_txt
+repository: https://github.com/vxern/robots_txt
+issue_tracker: https://github.com/vxern/robots_txt/issues
 
 environment:
   sdk: '>=2.17.0 <3.0.0'
