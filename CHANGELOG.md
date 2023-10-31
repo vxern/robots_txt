@@ -1,3 +1,10 @@
+## 2.3.0
+
+- Bump dependencies.
+- Bump the SDK version to `3.0.0`.
+- Remove the `meta` package.
+- Remove work-around for issue fixed by https://github.com/dart-lang/sdk/issues/49188.
+
 ## 2.2.0+3
 
 - Updated licence bearer.

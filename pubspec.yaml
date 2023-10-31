@@ -1,5 +1,5 @@
 name: robots_txt
-version: 2.2.0+3
+version: 2.3.0
 
 description: A complete, dependency-less and fully documented `robots.txt` ruleset parser.
 
@@ -8,11 +8,8 @@ repository: https://github.com/vxern/robots_txt
 issue_tracker: https://github.com/vxern/robots_txt/issues
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
-
-dependencies:
-  meta: ^1.8.0 # Used for static analysis.
+  sdk: ">=3.0.0 <4.0.0"
 
 dev_dependencies:
-  test: ^1.22.1 # Testing.
-  words: ^0.2.0 # Stricter lints.
+  test: ^1.24.9 # Testing.
+  words: ^0.4.4 # Stricter lints.

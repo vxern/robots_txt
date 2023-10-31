@@ -1,8 +1,4 @@
-import 'package:meta/meta.dart';
-
 /// A single rule (either `Allow` or `Disallow`) inside a `robots.txt` file.
-@immutable
-@sealed
 class Rule {
   /// A regular expression matching to a particular path.
   final RegExp pattern;
@@ -52,7 +48,6 @@ extension Precedence on Rule? {
 
 /// The signature of a method that compares two variables of type `T` and
 /// returns the one supposed 'greater'.
-@internal
 typedef ComparisonFunction<T> = T Function(T a, T b);
 
 /// `ComparisonFunction`s matched to `PrecedenceStrategy`s.

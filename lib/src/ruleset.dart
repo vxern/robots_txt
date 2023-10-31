@@ -1,11 +1,7 @@
-import 'package:meta/meta.dart';
-
 import 'package:robots_txt/src/robots.dart';
 import 'package:robots_txt/src/rule.dart';
 
 /// A collection of `Rule`s applicable to a particular [userAgent].
-@immutable
-@sealed
 class Ruleset {
   /// The user-agent which this ruleset applies to.
   final String userAgent;

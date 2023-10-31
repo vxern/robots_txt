@@ -33,7 +33,7 @@ Future<void> main() async {
     }
   }
 
-  const userAgent = 'WordCollector';
+  const userAgent = 'government';
 
   // False: it cannot.
   print(
@@ -41,7 +41,7 @@ Future<void> main() async {
   );
   // True: it can.
   print(
-    "Can '$userAgent' access /wordcollector/robots_txt/? ${robots.verifyCanAccess('/wordcollector/robots_txt/', userAgent: userAgent)}",
+    "Can '$userAgent' access /government/robots_txt/? ${robots.verifyCanAccess('/government/robots_txt/', userAgent: userAgent)}",
   );
 
   // Validating an invalid file will throw a `FormatException`.

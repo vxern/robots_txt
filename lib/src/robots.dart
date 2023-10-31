@@ -1,11 +1,8 @@
-import 'package:meta/meta.dart';
-
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/ruleset.dart';
 
 /// Taking a set of [allowedFieldNames], builds a regular expression matching
 /// only to valid `robots.txt` files.
-@internal
 RegExp buildValidFilePattern({Set<String> allowedFieldNames = const {}}) {
   final fieldNameExpression =
       [FieldType.defaultFieldNameExpression, ...allowedFieldNames].join('|');
@@ -16,14 +13,11 @@ RegExp buildValidFilePattern({Set<String> allowedFieldNames = const {}}) {
 }
 
 /// Defines a Regex pattern that matches to comments.
-@internal
 final commentPattern = RegExp('#.*');
 
 /// Stores information about a `robots.txt` file, exposing a simple and concise
 /// API for working with the file and validating if a certain path can be
 /// accessed by a given user-agent.
-@immutable
-@sealed
 class Robots {
   /// Stores information about the rules specified for given user-agents.
   final List<Ruleset> rulesets;
@@ -168,7 +162,6 @@ class Robots {
           }
 
           userAgents.add(field.value);
-          break;
         case FieldType.disallow:
           if (!isReadingRuleset()) {
             break;
@@ -190,8 +183,6 @@ class Robots {
               precedence: lines.length - (index + 1),
             ),
           );
-
-          break;
         case FieldType.allow:
           if (!isReadingRuleset()) {
             break;
@@ -213,11 +204,8 @@ class Robots {
               precedence: lines.length - (index + 1),
             ),
           );
-
-          break;
         case FieldType.sitemap:
           sitemaps.add(field.value);
-          break;
         case FieldType.crawlDelay:
           final value = int.tryParse(field.value);
           if (value == null || (crawlDelay != null && value < crawlDelay!)) {
@@ -225,10 +213,8 @@ class Robots {
           }
 
           crawlDelay = value;
-          break;
         case FieldType.host:
           hosts.add(field.value);
-          break;
       }
 
       previousType = type;
@@ -296,10 +282,6 @@ class Robots {
     );
 
     switch (typePrecedence) {
-      case PrecedentRuleType.defaultPrecedentType:
-      // TODO(vxern): Below is a fix for an issue in Dart 2.18 with the enhanced
-      //  enums. This issue is fixed in 2.19, which is still on the beta
-      //  channel. Refer to: https://github.com/dart-lang/sdk/issues/49188
       // ignore: no_duplicate_case_values
       case PrecedentRuleType.allow:
         return allowedBy != null || disallowedBy == null;
@@ -311,7 +293,6 @@ class Robots {
 
 /// Taking an [exception], a [line] and the [index] of that line, creates a more
 /// informational `FormatException`.
-@internal
 FormatException wrapFormatException(
   Exception exception,
   String line,
@@ -325,7 +306,6 @@ is invalid:
 ''');
 
 /// Describes the type of a rule.
-@internal
 enum RuleType {
   /// A rule explicitly allows a given path.
   allow,
@@ -351,7 +331,6 @@ enum PrecedentRuleType {
 }
 
 /// Defines a key-value field of a `robots.txt` file specifying a rule.
-@visibleForTesting
 enum FieldType {
   /// A field specifying the user-agent the following fields apply to.
   userAgent(key: 'User-agent', example: '*'),

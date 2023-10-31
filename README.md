@@ -17,15 +17,15 @@ establish whether or not a user-agent is allowed to visit a particular path:
 ```dart
 final userAgent = /* Your user-agent. */;
 print(robots.verifyCanAccess('/gist/', userAgent: userAgent)); // False
-print(robots.verifyCanAccess('/wordcollector/robots_txt/', userAgent: userAgent)); // True
+print(robots.verifyCanAccess('/government/robots_txt/', userAgent: userAgent)); // True
 ```
 
 If you are only concerned about directives pertaining to your own user-agent,
 you may instruct the parser to ignore other user-agents as follows:
 
 ```dart
-// Parse the contents, disregarding user-agents other than 'WordCollector'.
-final robots = Robots.parse(contents, onlyApplicableTo: const {'WordCollector'});
+// Parse the contents, disregarding user-agents other than 'government'.
+final robots = Robots.parse(contents, onlyApplicableTo: const {'government'});
 ```
 
 The `Robots.parse()` function does not have any built-in structure validation.
