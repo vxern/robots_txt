@@ -1,5 +1,5 @@
 /// Lightweight, fully documented `robots.txt` file parser.
-library robots_txt;
+library;
 
 export 'src/robots.dart' show FieldType, PrecedentRuleType, Robots;
 export 'src/rule.dart' show FindRule, Precedence, PrecedenceStrategy, Rule;

@@ -1,9 +1,14 @@
+## 2.3.1
+
+- Fixed empty `Disallow` entry not allowing access to everything.
+- Bumped year in `LICENSE`.
+
 ## 2.3.0
 
-- Bump dependencies.
-- Bump the SDK version to `3.0.0`.
-- Remove the `meta` package.
-- Remove work-around for issue fixed by https://github.com/dart-lang/sdk/issues/49188.
+- Bumped dependencies.
+- Bumped the SDK version to `3.0.0`.
+- Removed the `meta` package.
+- Removed work-around for issue fixed by https://github.com/dart-lang/sdk/issues/49188.
 
 ## 2.2.0+3
 

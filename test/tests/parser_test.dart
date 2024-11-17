@@ -60,7 +60,7 @@ void main() {
     });
 
     group('rules with logic-based applicability', () {
-      test('defined without a user agent.', () {
+      test('defined without a User-Agent.', () {
         expect(
           () => robots = Robots.parse(rulesWithoutUserAgent),
           returnsNormally,
@@ -69,7 +69,7 @@ void main() {
         expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
       });
 
-      test('defined before a user agent.', () {
+      test('defined before a User-Agent.', () {
         expect(
           () => robots = Robots.parse(rulesDefinedBeforeUserAgent),
           returnsNormally,
@@ -438,6 +438,28 @@ void main() {
           equals(false),
         );
       });
+
+      test(
+        "that disallow everything for all User-Agents except for 'A'.",
+        () {
+          expect(
+            () => robots = Robots.parse(everythingDisallowedForAllExceptA),
+            returnsNormally,
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'B'),
+            equals(false),
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'C'),
+            equals(false),
+          );
+          expect(
+            robots.verifyCanAccess('/file.txt', userAgent: 'A'),
+            equals(true),
+          );
+        },
+      );
     });
   });
 }

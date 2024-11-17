@@ -177,6 +177,12 @@ class Robots {
               break;
             }
           }
+
+          if (field.value.trim().isEmpty) {
+            allows.add(Rule(pattern: pattern, precedence: 0));
+            break;
+          }
+
           disallows.add(
             Rule(
               pattern: pattern,
@@ -384,6 +390,5 @@ enum FieldType {
   }
 
   @override
-  @Deprecated('Use `toField()` instead')
-  String toString();
+  String toString() => toField();
 }

@@ -142,3 +142,11 @@ final directoriesContainingStringDisallowed = '''
 ${FieldType.userAgent.toField('*')}
 ${FieldType.disallow.toField('/*string*/')}
 ''';
+
+/// Everything is disallowed for all user-agents except 'A'.
+final everythingDisallowedForAllExceptA = '''
+${FieldType.userAgent.toField('*')}
+${FieldType.disallow.toField('/')}
+${FieldType.userAgent.toField('A')}
+${FieldType.disallow.toField('')}
+''';
