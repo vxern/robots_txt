@@ -11,12 +11,12 @@ void main() {
     group('file contents', () {
       test('that are empty.', () {
         expect(() => robots = Robots.parse(emptyContents), returnsNormally);
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isTrue);
       });
 
       test('that are not valid.', () {
         expect(() => robots = Robots.parse(invalidContents), returnsNormally);
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isTrue);
       });
 
       test('that are valid, but have an invalid pattern.', () {
@@ -41,10 +41,10 @@ void main() {
         expect(robots.sitemaps.length, equals(1));
         expect(robots.hosts, equals([FieldType.host.example]));
 
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(false));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isFalse);
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -66,7 +66,7 @@ void main() {
           returnsNormally,
         );
         expect(robots.rulesets, equals(<Ruleset>[]));
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isTrue);
       });
 
       test('defined before a User-Agent.', () {
@@ -75,7 +75,7 @@ void main() {
           returnsNormally,
         );
         expect(robots.rulesets, equals(<Ruleset>[]));
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isTrue);
       });
 
       test('that disallow a file for A.', () {
@@ -83,10 +83,10 @@ void main() {
           () => robots = Robots.parse(fileDisallowedForA),
           returnsNormally,
         );
-        expect(robots.verifyCanAccess('/', userAgent: 'A'), equals(true));
+        expect(robots.verifyCanAccess('/', userAgent: 'A'), isTrue);
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -97,15 +97,15 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'B'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'C'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -116,15 +116,15 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'B'),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -135,11 +135,11 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'B'),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -160,15 +160,15 @@ void main() {
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-            equals(false),
+            isFalse,
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'B'),
-            equals(true),
+            isTrue,
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'C'),
-            equals(false),
+            isFalse,
           );
         },
       );
@@ -182,7 +182,7 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -193,11 +193,11 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/directory/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -208,15 +208,15 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/directory/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/directory/subdirectory/', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -227,19 +227,19 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/one/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/one/two/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/one/two/three/', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -252,14 +252,14 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/nest/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/nest/directory/subdirectory/',
             userAgent: 'A',
           ),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -270,25 +270,25 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/directory/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/file.txt',
             userAgent: 'A',
           ),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/file_2.txt',
             userAgent: 'A',
           ),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -299,33 +299,33 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/path', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/directory/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/file.txt',
             userAgent: 'A',
           ),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/',
             userAgent: 'A',
           ),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -336,33 +336,33 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/file', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/directory/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/directory/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/file.txt',
             userAgent: 'A',
           ),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess(
             '/directory/subdirectory/',
             userAgent: 'A',
           ),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -373,11 +373,11 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/file.pdf', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -388,23 +388,23 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/string.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/abc|string.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/string|abc.txt', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/string/file.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
       });
 
@@ -415,27 +415,27 @@ void main() {
         );
         expect(
           robots.verifyCanAccess('/string.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/directory/string.txt', userAgent: 'A'),
-          equals(true),
+          isTrue,
         );
         expect(
           robots.verifyCanAccess('/string/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/abc|string/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/string|abc/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
         expect(
           robots.verifyCanAccess('/one/two/three/string/five/', userAgent: 'A'),
-          equals(false),
+          isFalse,
         );
       });
 
@@ -448,15 +448,15 @@ void main() {
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'B'),
-            equals(false),
+            isFalse,
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'C'),
-            equals(false),
+            isFalse,
           );
           expect(
             robots.verifyCanAccess('/file.txt', userAgent: 'A'),
-            equals(true),
+            isTrue,
           );
         },
       );
