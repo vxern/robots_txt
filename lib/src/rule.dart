@@ -1,3 +1,5 @@
+import 'package:robots_txt/src/precedence_strategy.dart';
+
 /// A single rule (either `Allow` or `Disallow`) inside a `robots.txt` file.
 class Rule {
   /// A regular expression matching to a particular path.
@@ -38,14 +40,6 @@ extension FindRule on List<Rule> {
   }
 }
 
-/// Extends `Rule?` with a getter `precedence` to avoid having to explicitly
-/// default to `-1` whenever attempting to access the hidden property
-/// `_precedence` on a nullish value.
-extension Precedence on Rule? {
-  /// Gets the precedence of this rule. Defaults to `-1` if `null`.
-  int get precedence => this?._precedence ?? -1;
-}
-
 /// The signature of a method that compares two variables of type `T` and
 /// returns the one supposed 'greater'.
 typedef ComparisonFunction<T> = T Function(T a, T b);
@@ -61,14 +55,10 @@ final _ruleComparisonFunctions =
   },
 );
 
-/// Defines the strategy to use to compare rules as per their `precedence`.
-enum PrecedenceStrategy {
-  /// The rule defined higher up in the `robots.txt` file takes precedence.
-  higherTakesPrecedence,
-
-  /// The rule defines lower down in the `robots.txt` file takes precedence.
-  lowerTakesPrecedence;
-
-  /// Defines the default strategy to use to compare rules.
-  static const defaultStrategy = PrecedenceStrategy.higherTakesPrecedence;
+/// Extends `Rule?` with a getter `precedence` to avoid having to explicitly
+/// default to `-1` whenever attempting to access the hidden property
+/// `_precedence` on a nullish value.
+extension Precedence on Rule? {
+  /// Gets the precedence of this rule. Defaults to `-1` if `null`.
+  int get precedence => this?._precedence ?? -1;
 }

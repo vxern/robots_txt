@@ -1,3 +1,4 @@
+import 'package:robots_txt/src/precedence_strategy.dart';
 import 'package:robots_txt/src/robots.dart';
 import 'package:robots_txt/src/rule.dart';
 
