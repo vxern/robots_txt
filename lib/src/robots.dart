@@ -1,5 +1,6 @@
 import 'package:robots_txt/src/precedence_strategy.dart';
 import 'package:robots_txt/src/rule.dart';
+import 'package:robots_txt/src/rule_type.dart';
 import 'package:robots_txt/src/ruleset.dart';
 
 /// Taking a set of [allowedFieldNames], builds a regular expression matching
@@ -311,15 +312,6 @@ Line $index of the file, defined as
 is invalid:
   $exception
 ''');
-
-/// Describes the type of a rule.
-enum RuleType {
-  /// A rule explicitly allows a given path.
-  allow,
-
-  /// A rule explicitly disallows a given path.
-  disallow,
-}
 
 /// Defines the method used to decide whether rules that explicitly allow a
 /// user-agent to access a path take precedence over ones that disallow it to do

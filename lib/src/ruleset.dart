@@ -1,6 +1,6 @@
 import 'package:robots_txt/src/precedence_strategy.dart';
-import 'package:robots_txt/src/robots.dart';
 import 'package:robots_txt/src/rule.dart';
+import 'package:robots_txt/src/rule_type.dart';
 
 /// A collection of `Rule`s applicable to a particular [userAgent].
 class Ruleset {
