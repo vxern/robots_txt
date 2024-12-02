@@ -1,3 +1,4 @@
+import 'package:robots_txt/src/precedence_rule_type.dart';
 import 'package:robots_txt/src/precedence_strategy.dart';
 import 'package:robots_txt/src/rule.dart';
 import 'package:robots_txt/src/rule_type.dart';
@@ -312,22 +313,6 @@ Line $index of the file, defined as
 is invalid:
   $exception
 ''');
-
-/// Defines the method used to decide whether rules that explicitly allow a
-/// user-agent to access a path take precedence over ones that disallow it to do
-/// so, or the other way around.
-enum PrecedentRuleType {
-  /// The rule that explicitly allows a user-agent to access a path takes
-  /// precedence over rules that explicitly disallow it.
-  allow,
-
-  /// The rule that explicitly disallows a user-agent to access a path takes
-  /// precedence over rules that explicitly allow it.
-  disallow;
-
-  /// Defines the default precedent rule type.
-  static const defaultPrecedentType = PrecedentRuleType.allow;
-}
 
 /// Defines a key-value field of a `robots.txt` file specifying a rule.
 enum FieldType {
