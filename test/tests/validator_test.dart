@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 
 import 'package:robots_txt/robots_txt.dart';
 
-import '../samples.dart';
+import '../mocks.dart';
 
 void main() {
   group('The validator correctly deals with', () {
